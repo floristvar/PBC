@@ -1,0 +1,31 @@
+a= mdb.models['Model-with6MBS'].rootAssembly
+mdb.models['Model-with6MBS'].keywordBlock.setValues(edited = 0)
+
+
+nodesets = {}
+for set,i in zip(["top","bottom","right","left"],[1,1,2,2]):
+    nodesets[set]=[]
+    for node in a.sets[set].nodes:
+        nodesets[set].append((node.label,node.coordinates[0],node.coordinates[1]))
+    nodesets[set].sort(key=lambda value: value[i])
+mdb.models['Model-with6MBS'].keywordBlock.synchVersions(True)
+keywordblock = mdb.models['Model-with6MBS'].keywordBlock
+for i,kw in enumerate(keywordblock.sieBlocks):
+    if kw.startswith("*End Part"):
+        endpart = i
+    elif kw.startswith("*End Instance"):
+        endinstance = i
+    elif kw.startswith("*Elset"):
+        endassembly = i
+    elif kw.startswith("*Static"):
+        static = i
+    elif kw.startswith("*Output, history"):
+        history = i
+        break
+#lastnode = finalPart.nodes[-1].label
+
+equationstring = "*Equation\n"
+for i in range(0,(len(nodesets["top"])-1)):
+    equationstring += "2\n"
+    equationstring += "WITH6MBSmod2-1.%d, 1, 1.0, WITH6MBSmod2-1.%d, 1, -1.0\n" % (nodesets["top"][i][0],nodesets["top"][i+1][0])
+keywordblock.insert(position=endassembly,text=equationstring)
