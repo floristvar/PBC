@@ -1,0 +1,87 @@
+** 
+*Part, name=dummy-LR
+*End Part
+**
+*Part, name=dummy-TB
+*End Part
+** 
+**
+
+
+
+**  
+** Defining two dummy nodes 100000, 200000 to apply prescribed boundary condition values
+**
+*Instance, name=dummy-LR-1, part=dummy-LR
+*Node
+100000, -10., 10., 0.
+**This dummy node can be arbitrary
+*Nset, nset=dummy-LR-1-RefPt_, internal
+100000,
+*End Instance
+**
+*Instance, name=dummy-TB-1, part=dummy-TB
+*Node
+200000, 10., 0., 0.
+**This dummy node can be arbitrary
+*Nset, nset=dummy-TB-1-RefPt_, internal
+200000,
+*End Instance
+**
+** Define nset "Set-dummy-LR" and "Set-dummy-TB" for the two dummy nodes
+**
+*Nset, nset=Set-dummy-LR, instance=dummy-LR-1
+100000,
+*Nset, nset=Set-dummy-TB, instance=dummy-TB-1
+200000,
+ 
+
+
+
+**Start defining constraints using equation
+*Equation
+3
+Left, 1, 1.,Right, 1, -1.,Set-dummy-LR, 1, 1.
+*Equation
+3
+Top, 2, 1.,Bottom, 2, -1.,Set-dummy-TB, 2, 1.
+
+
+
+** STEP: Step-apply-constraint
+**
+** Create a load step to apply a prescribed disp value to dummy node
+*Step, name=Step-apply-constraint
+**This step is used to apply constraint to dummy nodes
+*Static
+1., 1, 1e-05, 1.
+
+** BOUNDARY CONDITIONS
+** 
+** Apply prescribed boundary conditions as displacement or strain to dummy nodes
+** BOUNDARY CONDITIONS
+**
+** Name: BC-LR Type: Displacement/Rotation
+*Boundary
+Set-dummy-LR, 1, 1, -0.01
+** Name: BC-TB Type: Displacement/Rotation
+*Boundary
+Set-dummy-TB, 2, 2, 0
+
+
+
+** 
+** OUTPUT REQUESTS
+** 
+*Restart, write, frequency=0
+** 
+** FIELD OUTPUT: F-Output-1
+** 
+*Output, field, variable=PRESELECT
+** 
+** HISTORY OUTPUT: H-Output-1
+** 
+*Output, history, variable=PRESELECT
+*End Step
+
+
